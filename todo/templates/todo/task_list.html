@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Task List</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        function confirmDelete(event, url) {
+            event.preventDefault();
+            if (confirm('Are you sure you want to delete this task?')) {
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    }
+                }).then(response => {
+                    if (response.ok) {
+                        window.location.reload();
+                    } else {
+                        alert('An error occurred while deleting the task.');
+                    }
+                });
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col items-center p-6">
+    <div class="w-full max-w-4xl bg-white rounded-lg shadow-lg p-6">
+        <h1 class="text-3xl font-bold mb-6 text-gray-900">Task List</h1>
+        <a href="{% url 'task_create' %}" class="bg-teal-500 text-white px-6 py-3 rounded-full shadow-md hover:bg-teal-600 focus:outline-none focus:ring-4 focus:ring-teal-300 transition duration-300 ease-in-out mb-4 inline-block">Create New Task</a>
+
+        <form id="csrf-form" method="post" style="display:none;">
+            {% csrf_token %}
+        </form>
+
+        <ul class="space-y-4 mb-6">
+            {% for task in tasks %}
+                <li class="flex items-center justify-between p-4 border rounded-md shadow-sm bg-white">
+                    <div class="flex-1">
+                        <a href="{% url 'task_detail' task.pk %}" class="text-lg font-semibold text-teal-600 hover:underline">{{ task.title }}</a>
+                        <span class="text-sm text-gray-500">ID: {{ task.pk }}</span>
+                    </div>
+                    <span class="text-sm {% if task.complete %}text-teal-600{% else %}text-orange-600{% endif %}">
+                        {% if task.complete %}Completed{% else %}Pending{% endif %}
+                    </span>
+                    <div class="flex items-center ml-4">
+                        <a href="{% url 'task_update' task.pk %}" class="text-blue-500 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300 mr-4">Edit</a>
+                        <a href="{% url 'task_delete' task.pk %}" class="text-red-500 hover:text-red-600 focus:outline-none focus:ring-2 focus:ring-red-300" onclick="confirmDelete(event, this.href);">Delete</a>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+
+        <a href="{% url 'logout' %}" class="bg-gray-500 text-white px-6 py-3 rounded-full shadow-md hover:bg-gray-600 focus:outline-none focus:ring-4 focus:ring-gray-300 transition duration-300 ease-in-out">Logout</a>
+    </div>
+</body>
+</html>

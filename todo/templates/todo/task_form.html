@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% if form.instance.pk %}Edit Task{% else %}Create Task{% endif %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for matching colors */
+        .btn-primary {
+            background-color: #5e8dff; /* Custom blue color */
+            color: #ffffff;
+        }
+        .btn-primary:hover {
+            background-color: #4a74e6; /* Darker blue on hover */
+        }
+        .btn-secondary {
+            background-color: #dcdcdc; /* Light gray color */
+            color: #333333;
+        }
+        .btn-secondary:hover {
+            background-color: #b0b0b0; /* Darker gray on hover */
+        }
+        .form-input {
+            border-color: #dcdcdc; /* Light gray border */
+            background-color: #f5f5f5; /* Light gray background */
+        }
+        .form-input:focus {
+            border-color: #5e8dff; /* Blue border on focus */
+            background-color: #ffffff; /* White background on focus */
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center min-h-screen bg-gray-100 p-6">
+    <div class="w-full max-w-md bg-white rounded-lg shadow-md p-6">
+        <h1 class="text-2xl font-bold mb-6 text-gray-900 text-center">
+            {% if form.instance.pk %}Edit Task{% else %}Create Task{% endif %}
+        </h1>
+        <form method="post" class="space-y-4">
+            {% csrf_token %}
+            <div class="space-y-4">
+                <!-- Render form fields with custom styles -->
+                {% for field in form %}
+                    <div class="flex flex-col">
+                        <label for="{{ field.id_for_label }}" class="text-gray-700 font-medium mb-1 {% if not form.instance.pk %}hidden{% endif %}">{{ field.label }}</label>
+                        <div class="relative">
+                            {% if field.field.widget.input_type == 'checkbox' %}
+                                {% if form.instance.pk %}
+                                    <!-- Centered and styled checkbox -->
+                                    <div class="flex items-center">
+                                        <input type="checkbox" id="{{ field.id_for_label }}" name="{{ field.html_name }}" {% if field.value %}checked{% endif %} class="w-6 h-6 text-blue-600 bg-gray-100 border-gray-300 rounded-lg focus:ring-blue-500 focus:ring-2">
+                                        <label for="{{ field.id_for_label }}" class="ml-2 text-gray-700">Complete</label>
+                                    </div>
+                                {% else %}
+                                    <!-- Hide the checkbox and label when creating a new task -->
+                                    <input type="hidden" name="{{ field.html_name }}" value="False">
+                                {% endif %}
+                            {% else %}
+                                <!-- Styled text input fields -->
+                                <input type="{{ field.field.widget.input_type }}" id="{{ field.id_for_label }}" name="{{ field.html_name }}" value="{{ field.value }}" class="block w-full py-2 px-3 border form-input rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <button type="submit" class="w-full py-2 px-4 btn-primary rounded-md shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-opacity-50 transition duration-300 ease-in-out">
+                {% if form.instance.pk %}Update{% else %}Create{% endif %}
+            </button>
+        </form>
+        <a href="{% url 'task_list' %}" class="mt-4 block btn-secondary hover:bg-gray-400 text-center rounded-md shadow-md py-2 px-4">Back to List</a>
+    </div>
+</body>
+</html>
